@@ -46,7 +46,7 @@
             color: #666;
         }
         li.clicked.clicked-twice {
-            background: #d4edda;  /* 第二次点击后变浅绿色，表示已跳转 */
+            background: #d4edda; /* 第二次点击后浅绿色 */
         }
         li:hover {
             transform: translateY(-2px);
@@ -87,6 +87,7 @@
     <div id="tip">已复制！</div>
 
     <ul id="tvList">
+        <!-- 这里是你的436部剧名列表（你已经替换好了，直接保持） -->
 <li><a href="#" data-title="金婚·风雨情">金婚·风雨情</a></li>
 <li><a href="#" data-title="有你才幸福">有你才幸福</a></li>
 <li><a href="#" data-title="我心灿烂">我心灿烂</a></li>
@@ -527,7 +528,7 @@
 
     <script>
         const list = document.getElementById('tvList');
-        const clicked = JSON.parse(localStorage.getItem('clickedTv') || '{}');  // 用对象记录点击次数
+        const clicked = JSON.parse(localStorage.getItem('clickedTv') || '{}');
 
         // 加载已点击状态
         document.querySelectorAll('li').forEach(li => {
@@ -537,37 +538,26 @@
             if (count >= 2) li.classList.add('clicked-twice');
         });
 
-        // 点击逻辑
-        list.addEventListener('click', e => {
+        // 点击处理
+        list.addEventListener('click', function(e) {
             if (e.target.tagName === 'A') {
+                e.preventDefault();  // 阻止默认跳转和页面跳动
+
                 const a = e.target;
                 const li = a.parentElement;
                 const title = a.getAttribute('data-title');
 
-                // 获取当前点击次数
                 let count = clicked[title] || 0;
                 count++;
 
-                // 更新状态
                 if (count === 1) {
-                    // 第一次：复制 + 变灰
+                    // 第一次：复制 + 变灰 + 提示
                     navigator.clipboard.writeText(title).catch(() => {});
                     li.classList.add('clicked');
-                    const tip = document.createElement('div');
-                    tip.textContent = '已复制剧名！';
-                    tip.style.position = 'fixed';
-                    tip.style.bottom = '40px';
-                    tip.style.right = '40px';
-                    tip.style.background = '#28a745';
-                    tip.style.color = 'white';
-                    tip.style.padding = '14px 28px';
-                    tip.style.borderRadius = '8px';
-                    tip.style.opacity = '0';
-                    tip.style.transition = 'opacity 0.5s';
-                    tip.style.zIndex = '9999';
-                    document.body.appendChild(tip);
+
+                    const tip = document.getElementById('tip');
                     tip.style.opacity = '1';
-                    setTimeout(() => { tip.style.opacity = '0'; setTimeout(() => tip.remove(), 500); }, 2500);
+                    setTimeout(() => { tip.style.opacity = '0'; }, 2500);
                 } else if (count === 2) {
                     // 第二次：跳转
                     li.classList.add('clicked-twice');
@@ -578,10 +568,9 @@
                 clicked[title] = count;
                 localStorage.setItem('clickedTv', JSON.stringify(clicked));
 
-                return false;  // 阻止默认跳转（只在第二次才跳）
+                return false;
             }
         });
     </script>
 </body>
-
 </html>
